@@ -1,0 +1,16 @@
+(import React               :from react)
+(import render              :from react-dom)
+(import init-product-data   :from ./product-data)
+(import get-product-data    :from ./utils/cart-api)
+(import Flux-Cart-App       :from ./components/flux-cart-app)
+
+;; Load Mock Product Data into localStorage
+(init-product-data !)
+
+;; Load Mock API Call
+(get-product-data !)
+
+;; Render Flux-Cart-App Controller View
+(render
+    (Flux-Cart-App)
+    (document :get-element-by-id 'flux-cart'))

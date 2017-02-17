@@ -1,0 +1,57 @@
+(import _                   :from underscore)
+(import Event-Emitter       :from events)
+(import App-Dispatcher      :from ../dispatcher/app-dispatcher)
+(import Flux-Cart-Constants :from ../constants/flux-cart-constants)
+
+;; Define initial data points
+(var -product {})
+(var -selected nil)
+
+;; Method to load product data from mock API
+(def load-product-data (data)
+    (-product := (data @ 0))
+    (-selected := (data @ 0).variants @ 0))
+
+;; Method to set the currently selected product variation
+(def set-selected (index)
+    (-selected := -product.variants @ index))
+
+;; Extend Product-Store with Event-Emitter to add eventing capabilities
+(class Product-Store :extends Event-Emitter
+    ;; Return Product data
+    (def :get-product -product)
+
+    ;; Return selected Product
+    (def :get-selected -selected)
+
+    ;; Emit Change event
+    (def :emit-change (self :emit 'change'))
+
+    ;; Add change listener
+    (def (:add-change-listener callback)
+        (self :on 'change' callback))
+
+    ;; Remove change listener
+    (def (:remove-change-listener callback)
+        (self :remove-listener 'change' callback)))
+
+
+;; Register callback with AppDispatcher
+(App-Dispatcher :register (fn (payload)
+    (var action payload.action)
+    (var text)
+
+    (when action.action-type
+        ;; Respond to RECEIVE-DATA action
+        (Flux-Cart-Constants.RECEIVE-DATA
+            (load-product-data action.data))
+
+        ;; Respond to SELECT-PRODUCT action
+        (Flux-Cart-Constants.SELECT-PRODUCT
+            (set-selected action.data))
+
+        (otherwise true))
+
+    ;; If action was responded to, emit change event
+    (Product-Store :emit-change)
+    (return true)))

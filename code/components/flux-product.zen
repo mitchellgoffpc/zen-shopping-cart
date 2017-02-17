@@ -1,0 +1,44 @@
+(import React               :from react)
+(import Flux-Cart-Actions   :from ../actions/FluxCartActions)
+
+;; Flux product view
+(class Flux-Product :extends React.Component
+
+    ;; Add item to cart via Actions
+    (def (:add-to-cart event)
+        (var sku self.props.selected.sku)
+        (var update
+          { :name self.props.product.name
+            :type self.props.selected.type
+            :price this.props.selected.price })
+        (Flux-Cart-Actions :add-to-cart sku update)
+        (Flux-Cart-Actions :update-cart-visible true))
+
+    ;; Select product variation via Actions
+    (def (:select-variant event)
+        (Flux-Cart-Actions :select-product event.target.value))
+
+    ;; Render product View
+    (def :render
+        (var ats (if (self.props.cartitems :contains self.props.selected.sku)
+            :then self.props.selected.inventory - (self.props.cart-items @ self.props.selected.sku).quantity
+            :else self.props.selected.inventory))
+
+        (div :class "flux-product"
+            (img :src (str "img/" self.props.product.image))
+            (div :class "flux-product-detail"
+                (h1 :class "name" (self.props.product.name))
+                (p :class "description" (self.props.product.description))
+                (p :class "price" Price: $(self.props.product.description))
+                (select :on-change self.select-variant
+                    (map self.props.product.variants (fn (variant, index)
+                        (option :key index
+                                :value index
+                            (variant.type)))))
+
+                (button :type "button"
+                        :on-click self.add-to-cart
+                        :disabled (ats == 0)
+                    (if (ats > 0)
+                        "Add To Cart"
+                        "Sold Out"))))))

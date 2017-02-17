@@ -1,0 +1,6 @@
+(import Flux-Cart-Actions :from ../actions/flux-cart-actions)
+
+;; Load mock product data from localStorage into ProductStore via Action
+(def get-product-data ()
+    (Flux-Cart-Actions :receive-product
+        (JSON :parse (local-storage :get 'product'))))

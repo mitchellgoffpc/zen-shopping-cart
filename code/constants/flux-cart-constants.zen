@@ -1,0 +1,8 @@
+(import key-mirror :from key-mirror)
+
+;; Define action constants
+(module { :CART-ADD nil
+          :CART-REMOVE nil
+          :CART-VISIBLE nil
+          :SET-SELECTED nil
+          :RECEIVE-DATA nil })

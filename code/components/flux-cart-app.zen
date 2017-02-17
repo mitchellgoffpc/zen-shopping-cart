@@ -1,0 +1,44 @@
+(import React           :from react)
+(import Cart-Store      :from ../stores/cart-store)
+(import Product-Store   :from ../stores/product-store)
+(import Flux-Product    :from ./flux-product)
+(import Flux-Cart       :from ./flux-cart)
+
+;; Method to retrieve state from Stores
+(def get-cart-state ()
+    { :product (Product-Store :get-product)
+      :selected-product: (Product-Store :get-selected)
+      :cart-items (Cart-Store :cart-items)
+      :cart-count (Cart-Store :cart-count)
+      :cart-total (Cart-Store :cart-total)
+      :cart-visible (Cart-Store :visible) })
+
+;; Define main Controller View
+(class Flux-Cart-App :extends React.Component
+    ;; Get initial state from stores
+    (def :get-initial-state (get-cart-state !))
+
+    ;; Add change listeners to stores
+    (def :component-did-mount
+        (Product-Store :add-change-listener self.on-change)
+        (Cart-Store :add-change-listener self.on-change))
+
+    ;; Remove change listeners from stores
+    (def :component-will-unmount function
+        (Product-Store :remove-change-listener self.on-change)
+        (Cart-Store :remove-change-listener self.on-change))
+
+    ;; Method to set-state based upon Store changes
+    (def :on-change
+        (self :set-state (get-cart-state !)))
+
+    ;; Render our child components, passing state via props
+    (def :render
+        (div :class "flux-cart-app"
+            (Flux-Cart :products self.state.cart-items
+                       :count self.state.cart-count
+                       :total self.state.cart-total
+                       :visible self.state.cart-visible)
+            (Flux-Product :product self.state.product
+                          :cart-items self.state.cart-items
+                          :selected self.state.selected-product))))

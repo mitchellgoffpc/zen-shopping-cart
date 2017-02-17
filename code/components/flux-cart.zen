@@ -1,0 +1,46 @@
+(import React               :from react)
+(import Flux-Cart-Actions   :from ../actions/flux-cart-actions)
+
+;; Flux cart view
+(class Flux-Cart :extends React.Component
+
+    ;; Hide cart via Actions
+    (def :close-cart
+        (Flux-Cart-Actions :update-cart-visible false))
+
+    ;; Show cart via Actions
+    (def :open-cart
+        (Flux-Cart-Actions :update-cart-visible true))
+
+    ;; Remove item from Cart via Actions
+    (def (:remove-from-cart sku)
+        (Flux-Cart-Actions :remove-from-cart sku)
+        (Flux-Cart-Actions :update-cart-visible false))
+
+    ;; Render cart view
+    (def :render
+        (var products self.props.products)
+        (div :class (str "flux-cart" (if self.props.visible " active" ""))
+            (div :class "mini-cart"
+                (button :type "button"
+                        :class "close-cart"
+                        :on-click self.close-cart
+                    &times;)
+
+                (ul (map self.props.products (fn (key product)
+                    (li :key key
+                        (h1 :class "name" (product.name))
+                        (p :class "type" (product.type) x (product.quantity))
+                        (p :class "price" ((product.price * product.quantity) :to-fixed 2))
+                        (button :type "button"
+                                :class "remove-item"
+                                :click #(self :remove-from-cart %)
+                            Remove)))))
+
+                (span :class "total" Total: (self.props.total)))
+
+            (button :type "button"
+                    :class "view-cart"
+                    :on-click self.open-cart
+                    :disabled (self.props.products :empty?)
+                View Cart \((self.props.count)\))))

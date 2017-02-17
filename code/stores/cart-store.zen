@@ -1,0 +1,77 @@
+(import _                   :from underscore)
+(import Event-Emitter       :from events)
+(import App-Dispatcher      :from ../dispatcher/app-dispatcher)
+(import Flux-Cart-Constants :from ../constants/flux-cart-constants)
+
+;; Define initial data points
+(var -products {})
+(var -cart-visible false)
+
+;; Add product to cart
+(def add (sku update)
+    (update.quantity := (if (-products :contains sku)
+        :then (-products :get sku).quantity + 1
+        :else 1))
+    (-products :set sku :to { $ (_products :get sku) update }))
+
+;; Set cart visibility
+(def set-cart-visible (visible) (-cart-visible := visible))
+
+;; Remove item from cart
+(def remove-item (sku) (products :delete sku))
+
+;; Extend Cart-Store with Event-Emitter to add eventing capabilities
+(class Cart-Store :extends Event-Emitter
+    ; Return cart items
+    (def :cart-items -products)
+
+    ;; Return # of items in cart
+    (def :cart-count -products.keys)
+
+    ;; Return cart visibility state
+    (def :is-cart-visible? -cart-visible)
+
+    ;; Return cart cost total
+    (def :cart-total
+        (var total 0)
+        (for product :in -products
+            (if (-products :contains product)
+                (total += (-products :at product).price * (-products at: product).quantity)))
+
+        (total :to-fixed 2))
+
+    ;; Emit Change event
+    (def :emit-change (self :emit 'change'))
+
+    ;; Add change listener
+    (def (:add-change-listener callback)
+         (self :on 'change' callback))
+
+    ;; Remove change listener
+    (def (:remove-change-listener callback)
+         (self :remove-listener 'change' callback)))
+
+
+;; Register callback with AppDispatcher
+(App-Dispatcher :register (fn (payload)
+    (var action payload.action)
+    (var text)
+
+    (when action.action-type
+        ;; Respond to CART-ADD action
+        (Flux-Cart-Constants.CART-ADD
+            (add action.sku action.update))
+
+        ;; Respond to CART-VISIBLE action
+        (Flux-Cart-Constants.CART-VISIBLE
+            (set-cart-visible action.cart-visible))
+
+        ;; Respond to CART-REMOVE action
+        (Flux-Cart-Constants.CART-REMOVE
+            (remove-item action.sku))
+
+        (otherwise true))
+
+    ;; If action was responded to, emit change event
+    (Cart-Store :emit-change)
+    (return true)))

@@ -1,0 +1,35 @@
+(import App-Dispatcher      :from ../dispatcher/app-dispatcher)
+(import Flux-Cart-Constants :from ../constants/flux-cart-constants)
+
+;; Define action methods
+(class FluxCartActions
+    ;; Receive initial product data
+    (def (:receiveProduct data)
+        (App-Dispatcher :handle-action
+          { :action-type Flux-Cart-Constants.RECEIVE-DATA
+            :data data }))
+
+    ;; Set currently selected product variation
+    (def (:select-product index)
+        (App-Dispatcher :handle-action
+          { :action-type Flux-Cart-Constants.SELECT-PRODUCT
+            :data index }))
+
+    ;; Add item to cart
+    (def (:add-to-cart sku update)
+        (App-Dispatcher :handle-action
+          { :action-type Flux-Cart-Constants.CART-ADD
+            :sku sku
+            :update update }))
+
+    ;; Remove item from cart
+    (def (:remove-from-cart sku)
+        (App-Dispatcher :handle-action
+          { :action-type Flux-Cart-Constants.CART-REMOVE
+            :sku sku }))
+
+    ;; Update cart visibility status
+    (def (:update-cart-visible visible)
+        (App-Dispatcher :handle-action
+          { :action-type Flux-Cart-Constants.CART-VISIBLE
+            :visible visible })))
