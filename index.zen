@@ -3,8 +3,8 @@
         (meta :charset "utf-8")
         (meta :name "viewport" :content "width=device-width, initial-scale=1")
         (title Flux Cart)
-        (stylesheet :at "css/app.css"))
+        (stylesheet :at "styles/app.zen"))
 
     (body
         (section :id "flux-cart")
-        (script :at "js/bundle.js")))
+        (script :at "scripts/bundle.zen")))

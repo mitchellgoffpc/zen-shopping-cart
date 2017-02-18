@@ -31,10 +31,10 @@
                     (li :key key
                         (h1 :class "name" (product.name))
                         (p :class "type" (product.type) x (product.quantity))
-                        (p :class "price" ((product.price * product.quantity) :to-fixed 2))
+                        (p :class "price" (product.price * product.quantity | :to-fixed 2))
                         (button :type "button"
                                 :class "remove-item"
-                                :click #(self :remove-from-cart %)
+                                :on-click #(self :remove-from-cart %)
                             Remove)))))
 
                 (span :class "total" Total: (self.props.total)))

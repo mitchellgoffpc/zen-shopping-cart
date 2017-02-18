@@ -10,7 +10,7 @@
         (var update
           { :name self.props.product.name
             :type self.props.selected.type
-            :price this.props.selected.price })
+            :price self.props.selected.price })
         (Flux-Cart-Actions :add-to-cart sku update)
         (Flux-Cart-Actions :update-cart-visible true))
 
